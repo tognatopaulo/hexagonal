@@ -1,9 +1,10 @@
 package com.tognati.hexagonal.application.core.usecase;
 
 import com.tognati.hexagonal.application.core.domain.Customer;
+import com.tognati.hexagonal.application.ports.in.FindCustomerByIDInputPort;
 import com.tognati.hexagonal.application.ports.out.FindCustomerByIDOutputPort;
 
-public class FindCustomerByIdUseCase {
+public class FindCustomerByIdUseCase implements FindCustomerByIDInputPort {
 
     private final FindCustomerByIDOutputPort findCustomerByIDOutputPort;
 
@@ -11,7 +12,8 @@ public class FindCustomerByIdUseCase {
         this.findCustomerByIDOutputPort = findCustomerByIDOutputPort;
     }
 
-    Customer find(String id){
+    @Override
+    public Customer find(String id){
         return findCustomerByIDOutputPort.find(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found!"));
     }

@@ -2,14 +2,13 @@ package com.tognati.hexagonal.adapter.in.controller;
 
 import com.tognati.hexagonal.adapter.in.controller.mapper.CustomerMapper;
 import com.tognati.hexagonal.adapter.in.controller.request.CustomerRequest;
+import com.tognati.hexagonal.adapter.in.controller.response.CustomerResponse;
+import com.tognati.hexagonal.application.ports.in.FindCustomerByIDInputPort;
 import com.tognati.hexagonal.application.ports.in.InsertCustomerInputPort;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/customers")
@@ -21,11 +20,21 @@ public class CustomerController {
     @Autowired
     private CustomerMapper customerMapper;
 
+    @Autowired
+    private FindCustomerByIDInputPort findCustomerByIDInputPort;
+
     @PostMapping
     public ResponseEntity<Void> insert(@Valid @RequestBody CustomerRequest customerRequest){
         var customer = customerMapper.toCustomer(customerRequest);
         insertCustomerInputPort.insert(customer, customerRequest.getZipCode());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CustomerResponse> findById(@PathVariable final String id){
+        var customer = findCustomerByIDInputPort.find(id);
+        var customerResponse = customerMapper.toCustomerResponse(customer);
+        return ResponseEntity.ok().body(customerResponse);
     }
 
 }
