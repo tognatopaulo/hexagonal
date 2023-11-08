@@ -4,6 +4,7 @@ import com.tognati.hexagonal.adapter.in.controller.mapper.CustomerMapper;
 import com.tognati.hexagonal.adapter.in.controller.request.CustomerRequest;
 import com.tognati.hexagonal.adapter.in.controller.response.CustomerResponse;
 import com.tognati.hexagonal.application.core.domain.Customer;
+import com.tognati.hexagonal.application.ports.in.DeleteCustomerInputPort;
 import com.tognati.hexagonal.application.ports.in.FindCustomerByIDInputPort;
 import com.tognati.hexagonal.application.ports.in.InsertCustomerInputPort;
 import com.tognati.hexagonal.application.ports.in.UpdateCustomerInputPort;
@@ -27,6 +28,9 @@ public class CustomerController {
 
     @Autowired
     private UpdateCustomerInputPort updateCustomerInputPort;
+    
+    @Autowired
+    private DeleteCustomerInputPort deleteCustomerInputPort;
 
     @PostMapping
     public ResponseEntity<Void> insert(@Valid @RequestBody CustomerRequest customerRequest){
@@ -47,6 +51,12 @@ public class CustomerController {
         Customer customer = customerMapper.toCustomer(customerRequest);
         customer.setId(id);
         updateCustomerInputPort.update(customer, customerRequest.getZipCode());
+        return ResponseEntity.noContent().build();
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable final String id) {
+        deleteCustomerInputPort.delete(id);
         return ResponseEntity.noContent().build();
     }
 
