@@ -3,8 +3,10 @@ package com.tognati.hexagonal.adapter.in.controller;
 import com.tognati.hexagonal.adapter.in.controller.mapper.CustomerMapper;
 import com.tognati.hexagonal.adapter.in.controller.request.CustomerRequest;
 import com.tognati.hexagonal.adapter.in.controller.response.CustomerResponse;
+import com.tognati.hexagonal.application.core.domain.Customer;
 import com.tognati.hexagonal.application.ports.in.FindCustomerByIDInputPort;
 import com.tognati.hexagonal.application.ports.in.InsertCustomerInputPort;
+import com.tognati.hexagonal.application.ports.in.UpdateCustomerInputPort;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,9 @@ public class CustomerController {
     @Autowired
     private FindCustomerByIDInputPort findCustomerByIDInputPort;
 
+    @Autowired
+    private UpdateCustomerInputPort updateCustomerInputPort;
+
     @PostMapping
     public ResponseEntity<Void> insert(@Valid @RequestBody CustomerRequest customerRequest){
         var customer = customerMapper.toCustomer(customerRequest);
@@ -35,6 +40,14 @@ public class CustomerController {
         var customer = findCustomerByIDInputPort.find(id);
         var customerResponse = customerMapper.toCustomerResponse(customer);
         return ResponseEntity.ok().body(customerResponse);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(@PathVariable final String id, @Valid @RequestBody CustomerRequest customerRequest){
+        Customer customer = customerMapper.toCustomer(customerRequest);
+        customer.setId(id);
+        updateCustomerInputPort.update(customer, customerRequest.getZipCode());
+        return ResponseEntity.noContent().build();
     }
 
 }
